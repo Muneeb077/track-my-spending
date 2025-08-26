@@ -30,10 +30,9 @@ exports.getDashboardData = async (req, res) => {
 
         // Get total Income for last 60 days
         const incomeLast60Days = last60DaysIncomeTransactions.reduce(
-            (sum, transaction) = sum + transaction.amount,
+            (sum, txn) => sum + (Number(txn.amount) || 0),
             0
         );
-
 
         // Get expense transaction in the last 30 days
         const last30DaysExpenseTransactions = await Expense.find({
@@ -43,7 +42,7 @@ exports.getDashboardData = async (req, res) => {
 
         // Get total Expense for last 30 days
         const expenseLast30Days = last30DaysExpenseTransactions.reduce(
-            (sum, transaction) = sum + transaction.amount,
+            (sum, txn) => sum + (Number(txn.amount) || 0),
             0
         );
 
