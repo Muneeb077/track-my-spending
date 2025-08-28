@@ -4,6 +4,6 @@ const {getDashboardData} = require("../controllers/dashboardController");
 
 const router = express.Router();
 
-router.get("/". protect, getDashboardData);
+router.get("/", protect, getDashboardData);
 
 module.exports = router;
