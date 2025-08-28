@@ -1,4 +1,4 @@
-const xlxs = require("xlsx")
+const XLSX = require("xlsx")
 const Income = require("../models/Income");
 
 
@@ -51,10 +51,16 @@ exports.downloadIncomeExcel = async (req, res) => {
             Date: item.date,
         }));
 
-        const wb = writeXLSX.utils.book_new();
-        const ws = writeXLSX.utils.json_to_sheet(data);
-        xlxs.writeFile(wb, ws, "income_details.xlxs");
-        res.download('income_detail.xlxs');
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Income");
+
+        // Write workbook to buffer
+        const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+
+        res.setHeader("Content-Disposition", "attachment; filename=expense-details.xlsx");
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.send(buffer);
     } catch (error) {
         res.status(500).json({message: "Server Error"})
     }

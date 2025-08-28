@@ -1,4 +1,4 @@
-const xlxs = require("xlsx");
+const XLSX = require("xlsx");
 const Expense = require("../models/Expense");
 
 exports.addExpense = async (req, res) => {
@@ -40,20 +40,26 @@ exports.getAllExpense = async (req, res) => {
 
 exports.downloadExpenseExcel = async (req, res) => {
     const userId = req.user.id;
-    try{
+    try {
         const expense = await Expense.find({userId}).sort({date:-1});
 
         // Prepare data for Excel
         const data = expense.map((item) => ({
             category: item.category,
             amount: item.amount,
-            Date: item.date,
+            date: item.date,
         }));
 
-        const wb = writeXLSX.utils.book_new();
-        const ws = writeXLSX.utils.json_to_sheet(data);
-        xlxs.writeFile(wb, ws, "expense_details.xlxs");
-        res.download('expense_detail.xlxs');
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Expenses");
+
+        // Write workbook to buffer
+        const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+
+        res.setHeader("Content-Disposition", "attachment; filename=expense-details.xlsx");
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.send(buffer);
     } catch (error) {
         res.status(500).json({message: "Server Error"})
     }
